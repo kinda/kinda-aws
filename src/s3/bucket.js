@@ -157,19 +157,17 @@ let Bucket = KindaObject.extend('Bucket', function() {
   // options:
   //   prefix
   this.listObjects = async function(options) {
+    await this.initialize();
     if (this.s3.debugMode) {
       console.log(`list objects in '${this.name}' bucket`);
     }
-
     let params = {
       Bucket: this.name
     };
     _.assign(params, util.pickAndRename(options, {
       'prefix': 'Prefix'
     }));
-
     let res = await this.s3.client.listObjectsV2(params);
-
     let result = util.pickAndRename(res, {
       'IsTruncated': 'isTruncated',
       'Name': 'name',
