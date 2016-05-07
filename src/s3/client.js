@@ -9,7 +9,7 @@ Client = Client.extend('Client', function() {
   };
 
   let methods = [
-    'getObject', 'putObject', 'deleteObject'
+    'getObject', 'putObject', 'deleteObject', 'listObjectsV2'
   ];
 
   for (let method of methods) {

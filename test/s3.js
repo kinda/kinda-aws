@@ -32,7 +32,7 @@ suite('KindaAWS.S3', function() {
       bucket = s3.getBucket('kinda-aws-s3-test');
     });
 
-    test('put, get and delete objects', async function() {
+    test('put, get, list and delete objects', async function() {
       this.timeout(30000);
 
       let body = 'Hello, World!';
@@ -48,6 +48,12 @@ suite('KindaAWS.S3', function() {
       assert.strictEqual(result.etag, etag);
       assert.strictEqual(result.metadata['is-cool'], 'always');
       assert.strictEqual(result.body, 'Hello, World!');
+
+      result = await bucket.listObjects();
+      assert.strictEqual(result.keyCount, 1);
+      assert.strictEqual(result.contents.length, 1);
+      assert.strictEqual(result.contents[0].key, 'aaa');
+      assert.strictEqual(result.contents[0].etag, etag);
 
       await bucket.deleteObject('aaa');
 

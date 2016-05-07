@@ -153,6 +153,47 @@ let Bucket = KindaObject.extend('Bucket', function() {
     };
     await this.s3.client.deleteObject(params);
   };
+
+  // options:
+  //   prefix
+  this.listObjects = async function(options) {
+    if (this.s3.debugMode) {
+      console.log(`list objects in '${this.name}' bucket`);
+    }
+
+    let params = {
+      Bucket: this.name
+    };
+    _.assign(params, util.pickAndRename(options, {
+      'prefix': 'Prefix'
+    }));
+
+    let res = await this.s3.client.listObjectsV2(params);
+
+    let result = util.pickAndRename(res, {
+      'IsTruncated': 'isTruncated',
+      'Name': 'name',
+      'Prefix': 'prefix',
+      'CommonPrefixes': 'commonPrefixes',
+      'KeyCount': 'keyCount'
+    });
+    result.contents = [];
+    for (let content of res.Contents) {
+      content = util.pickAndRename(content, {
+        'Key': 'key',
+        'LastModified': 'lastModified',
+        'ETag': 'etag',
+        'Size': 'size',
+        'StorageClass': 'storageClass'
+      });
+      content.etag = JSON.parse(content.etag);
+      if (content.lastModified) {
+        content.lastModified = new Date(content.lastModified);
+      }
+      result.contents.push(content);
+    }
+    return result;
+  };
 });
 
 module.exports = Bucket;
